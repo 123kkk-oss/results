@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartCare - Assistant</title>
+<style>
+  :root { --navy:#0b4f85; --blue:#1e73be; --sky:#2ea8e8; --green:#2bb37b; --teal:#1a9a85;
+          --bg:#f2f8fb; --card:#fff; --ink:#0f2a3d; --muted:#5a7487; --line:#d8e6ef; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); padding-bottom:150px;
+         font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  button { font-family:inherit; cursor:pointer; }
+  .top { display:flex; align-items:center; gap:10px; padding:12px 18px; background:#fff; border-bottom:1px solid var(--line); }
+  .top svg { width:38px; height:38px; flex:none; }
+  .brand { font-size:22px; font-weight:800; letter-spacing:-.3px; color:var(--navy); line-height:1; }
+  .brand span { color:var(--green); }
+  .tag { font-size:11px; color:var(--muted); margin-top:3px; }
+  .hero { padding:22px 18px 26px; color:#fff; background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 55%,var(--teal) 100%); }
+  .hero h1 { margin:0 0 6px; font-size:28px; letter-spacing:-.4px; }
+  .hero p { margin:0; font-size:15px; opacity:.92; }
+
+  .chat { padding:14px 16px 6px; }
+  .msg { display:flex; gap:10px; margin-top:12px; align-items:flex-end; }
+  .msg.me { justify-content:flex-end; }
+  .bot-av { flex:none; width:34px; height:34px; border-radius:12px; display:grid; place-items:center; color:#fff;
+            font-weight:800; font-size:13px; background:linear-gradient(135deg,var(--sky),var(--green)); }
+  .bub { max-width:82%; padding:11px 14px; border-radius:18px; font-size:15px; line-height:1.5; }
+  .bot .bub { background:#fff; border:1px solid var(--line); border-bottom-left-radius:6px; box-shadow:0 2px 10px rgba(11,79,133,.06); }
+  .me .bub { background:linear-gradient(135deg,var(--blue),var(--teal)); color:#fff; border-bottom-right-radius:6px; }
+  .bub b { color:var(--navy); }
+  .dots { display:flex; gap:5px; padding:4px 2px; }
+  .dots i { width:8px; height:8px; border-radius:50%; background:var(--sky); opacity:.35; animation:blink 1s infinite; }
+  .dots i:nth-child(2) { animation-delay:.2s; }
+  .dots i:nth-child(3) { animation-delay:.4s; }
+  @keyframes blink { 50% { opacity:1; } }
+  @media (prefers-reduced-motion:reduce) { .dots i { animation:none; opacity:.7; } }
+
+  .bar { position:fixed; left:0; right:0; bottom:0; z-index:10; background:#fff; border-top:1px solid var(--line);
+         padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px)); }
+  .chips { display:flex; gap:8px; overflow-x:auto; padding-bottom:10px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chip { flex:none; padding:8px 14px; border:1.5px solid var(--line); border-radius:999px; background:#fff;
+          color:var(--navy); font-size:14px; font-weight:600; }
+  .send { display:flex; gap:8px; }
+  input { flex:1; min-width:0; font-size:16px; padding:13px 14px; border:1.5px solid var(--line); border-radius:14px;
+          background:#fff; color:var(--ink); font-family:inherit; }
+  input:focus { outline:none; border-color:var(--sky); box-shadow:0 0 0 3px rgba(46,168,232,.2); }
+  .go { flex:none; padding:0 18px; border:0; border-radius:14px; color:#fff; font-size:15px; font-weight:600;
+        background:linear-gradient(135deg,var(--blue),var(--navy)); }
+  .foot { text-align:center; font-size:12px; color:var(--muted); padding:14px 20px 0; line-height:1.5; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <svg viewBox="0 0 64 64" aria-hidden="true">
+    <rect x="22" y="4" width="20" height="56" rx="6" fill="#1e73be"/>
+    <rect x="4" y="22" width="56" height="20" rx="6" fill="#2ea8e8"/>
+    <path d="M32 47C20 39 16 32 16 26.5 16 21.5 20 18 24.5 18 28 18 31 20 32 22.5 33 20 36 18 39.5 18 44 18 48 21.5 48 26.5 48 32 44 39 32 47Z" fill="#fff"/>
+    <polyline points="21,31 27.5,31 30,25.5 33.5,36 35.5,31 43,31" fill="none" stroke="#0b4f85" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M34 61C49 59 59 48 59 33 53 44 45 46 33 53Z" fill="#2bb37b"/>
+  </svg>
+  <div>
+    <div class="brand">Smart<span>Care</span></div>
+    <div class="tag">Your health, simplified.</div>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Assistant</h1>
+  <p>Ask about doctors, appointments, results or the hospital.</p>
+</div>
+
+<div class="chat" id="chat" aria-live="polite"></div>
+<div class="foot">Demo assistant. It gives general help only and cannot diagnose.</div>
+
+<div class="bar">
+  <div class="chips" id="chips"></div>
+  <div class="send">
+    <input id="q" type="text" placeholder="Type your question" autocomplete="off">
+    <button class="go" id="go">Send</button>
+  </div>
+</div>
+
+<script>
+// EDIT THESE: doctors are [name, specialty, hospital, days]
+var DOCS = [
+  ["Dr. Ahmed Hassan","Cardiology","Azadi Teaching Hospital","Sun, Tue, Thu"],
+  ["Dr. Sara Ali","Pediatrics","Hevi Hospital","Mon - Thu"],
+  ["Dr. Omar Kareem","Dermatology","Shilan Private Hospital","Sun, Wed"],
+  ["Dr. Layla Noor","Gynecology","Duhok Maternity Hospital","Mon, Wed, Thu"],
+  ["Dr. Yusuf Saleh","Orthopedics","Baroshki Emergency Teaching Hospital","Sun - Tue"],
+  ["Dr. Mariam Jasim","Neurology","Azadi Teaching Hospital","Tue, Thu"],
+  ["Dr. Karwan Mahmood","Dentistry","Jiyan Private Hospital","Sun - Thu"],
+  ["Dr. Zainab Rashid","Ophthalmology","Duhok Private Hospital","Mon, Tue, Thu"],
+  ["Dr. Hiwa Aziz","ENT","German Private Hospital","Sun, Mon, Wed"],
+  ["Dr. Rebin Othman","Urology","Zanko Private Hospital","Tue, Wed, Thu"],
+  ["Dr. Shadan Ibrahim","Internal Medicine","Azadi Teaching Hospital","Sun - Thu"],
+  ["Dr. Nawzad Faraj","General Surgery","Baroshki Emergency Teaching Hospital","Mon, Wed"],
+  ["Dr. Dilan Baker","Psychiatry","Jiyan Private Hospital","Tue, Thu"],
+  ["Dr. Awat Salim","Endocrinology","CMC Private Hospital","Sun, Tue"],
+  ["Dr. Roza Hamad","General Medicine","Duhok Private Hospital","Sun - Thu"]
+];
+
+// words people type -> specialty
+var SPEC = {
+  "heart":"Cardiology","cardiology":"Cardiology","cardiologist":"Cardiology",
+  "child":"Pediatrics","children":"Pediatrics","kid":"Pediatrics","kids":"Pediatrics","baby":"Pediatrics","pediatrics":"Pediatrics",
+  "skin":"Dermatology","dermatology":"Dermatology","rash":"Dermatology",
+  "pregnancy":"Gynecology","pregnant":"Gynecology","women":"Gynecology","gynecology":"Gynecology",
+  "bone":"Orthopedics","bones":"Orthopedics","joint":"Orthopedics","orthopedics":"Orthopedics",
+  "brain":"Neurology","neurology":"Neurology","migraine":"Neurology","headache":"Neurology",
+  "tooth":"Dentistry","teeth":"Dentistry","dentist":"Dentistry","dentistry":"Dentistry",
+  "eye":"Ophthalmology","eyes":"Ophthalmology","ophthalmology":"Ophthalmology",
+  "ear":"ENT","nose":"ENT","throat":"ENT","ent":"ENT",
+  "kidney":"Urology","urology":"Urology","urine":"Urology",
+  "internal":"Internal Medicine",
+  "surgery":"General Surgery","surgeon":"General Surgery",
+  "mental":"Psychiatry","depression":"Psychiatry","anxiety":"Psychiatry","psychiatry":"Psychiatry",
+  "diabetes":"Endocrinology","sugar":"Endocrinology","thyroid":"Endocrinology","endocrinology":"Endocrinology",
+  "general":"General Medicine"
+};
+
+// topic answers. Longer matching words win.
+var KB = [
+  { k:["hello","hi","hey","salam"], a:"Hello! I'm the SmartCare assistant. I can help you find a doctor, book or manage appointments, and explain your lab results." },
+  { k:["thanks","thank you","thx"], a:"You're welcome! Ask me anything else you need." },
+  { k:["bye","goodbye"], a:"Goodbye! Take care." },
+  { k:["help","what can you do","who are you"], a:"I can help with:\n• Finding a doctor by specialty or name\n• Booking and cancelling appointments\n• Your lab results\n• Hospital locations and visiting hours\n\nTry: <b>Find a heart doctor</b>." },
+  { k:["book","booking","reserve","make an appointment","schedule"], a:"To book a visit:\n1. Open <b>Find Doctor</b>.\n2. Pick a doctor and tap <b>Book appointment</b>.\n3. Enter your name, phone, date and time, then confirm.\n\nYour booking appears in <b>My Appointments</b>." },
+  { k:["cancel","reschedule","change my appointment"], a:"Open <b>My Appointments</b> and tap <b>Cancel appointment</b> on the visit. Tap it twice to confirm. To change the time, cancel it and book a new one from Find Doctor." },
+  { k:["my appointments","my appointment","upcoming"], a:"Your booked visits are in <b>My Appointments</b>, newest first, with the doctor, hospital, date and time." },
+  { k:["lab","results","result","blood test","tests"], a:"Open <b>Lab Results</b> to see your results grouped by doctor, with the date. Each test is marked <b>Normal</b> or <b>Needs review</b>. Tap a test to see its normal range.\n\nPlease discuss results with your doctor." },
+  { k:["needs review","high","low","abnormal"], a:"<b>Needs review</b> means a value is outside the normal range. It does not always mean something is wrong. Please show it to your doctor." },
+  { k:["visiting","visit hours","visiting hours","hours","open","working"], a:"Sample hours:\n• Visiting: daily 4:00 - 7:00 pm\n• Clinics: Sun - Thu, 8:00 am - 2:00 pm\n• Emergency: 24 hours" },
+  { k:["hospital","hospitals"], a:"Hospitals in the app:\n• Azadi Teaching Hospital\n• Hevi Hospital\n• Shilan Private Hospital\n• Duhok Maternity Hospital\n• Baroshki Emergency Teaching Hospital\n• Jiyan Private Hospital\n• Duhok Private Hospital\n• German Private Hospital\n• Zanko Private Hospital\n• CMC Private Hospital" },
+  { k:["where","location","directions","address","map","floor","room","department"], a:"Each doctor in <b>Find Doctor</b> shows the hospital, department and floor. Tap <b>Directions</b> on the card to open the hospital in Google Maps." },
+  { k:["phone","call","contact","number"], a:"Tap <b>Call</b> on a doctor's card in Find Doctor to phone their clinic directly." },
+  { k:["pay","price","cost","fee","insurance","cash"], a:"Sample info: fees depend on the doctor and the hospital. Please ask the reception about prices and insurance when you arrive." },
+  { k:["emergency","ambulance","urgent","accident","chest pain","can't breathe","cannot breathe","bleeding","unconscious"], a:"<b>If this is an emergency, tap the Emergency button in the app or call your local emergency number now.</b> Do not wait for an appointment." },
+  { k:["pain","fever","sick","ill","symptom","symptoms","vomit","cough"], a:"I'm sorry you're not feeling well. I can't diagnose, but I can help you see a doctor. Tell me the area (for example <b>heart</b>, <b>skin</b>, <b>child</b>) or ask for <b>General Medicine</b>. If it's severe, please use the Emergency button." }
+];
+
+var CHIPS = ["Find a heart doctor","How do I book?","Where are my results?","Visiting hours","Cancel appointment","Emergency"];
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function html(s){ return String(s).replace(/\n/g,"<br>"); }
+
+function docList(spec){
+  var rows = DOCS.filter(function(d){ return d[1] === spec; });
+  return "Here are our <b>" + esc(spec) + "</b> doctors:\n" + rows.map(function(d){
+    return "• <b>" + esc(d[0]) + "</b>, " + esc(d[2]) + " (" + esc(d[3]) + ")";
+  }).join("\n") + "\n\nOpen <b>Find Doctor</b> to book.";
+}
+
+function answer(text){
+  var t = text.toLowerCase().replace(/[?!.,]/g, " ");
+  var words = t.split(/\s+/).filter(Boolean);
+
+  // 1. a doctor's name
+  for (var i = 0; i < DOCS.length; i++) {
+    var parts = DOCS[i][0].toLowerCase().replace("dr. ","").split(" ");
+    for (var j = 0; j < parts.length; j++) {
+      if (parts[j].length >= 3 && words.indexOf(parts[j]) > -1) {
+        var d = DOCS[i];
+        return "<b>" + esc(d[0]) + "</b> is a " + esc(d[1]) + " doctor at " + esc(d[2]) + ".\nAvailable: " + esc(d[3]) + ".\n\nOpen <b>Find Doctor</b> to book." ;
+      }
+    }
+  }
+  // 2. a topic (longest matching word wins)
+  var best = null, bestScore = 0;
+  KB.forEach(function(e){
+    var score = 0;
+    e.k.forEach(function(k){
+      var hit = k.indexOf(" ") > -1 ? (" " + t + " ").indexOf(" " + k + " ") > -1 : words.indexOf(k) > -1;
+      if (hit) score += k.length;
+    });
+    if (score > bestScore) { bestScore = score; best = e; }
+  });
+  if (best && bestScore >= 5) return best.a;
+  // 3. a specialty word
+  for (var w = 0; w < words.length; w++) { if (SPEC[words[w]]) return docList(SPEC[words[w]]); }
+  if (best) return best.a;
+  return "I'm not sure I understood. I can help with <b>doctors</b>, <b>booking</b>, <b>appointments</b>, <b>lab results</b> and <b>visiting hours</b>. Try one of the buttons below.";
+}
+
+function add(who, content){
+  var m = document.createElement("div");
+  m.className = "msg " + who;
+  m.innerHTML = (who === "bot" ? '<div class="bot-av">SC</div>' : "") + '<div class="bub">' + content + "</div>";
+  $("chat").appendChild(m);
+  window.scrollTo(0, document.body.scrollHeight);
+  return m;
+}
+
+function ask(text){
+  text = text.trim();
+  if (!text) return;
+  add("me", esc(text));
+  $("q").value = "";
+  var typing = add("bot", '<div class="dots"><i></i><i></i><i></i></div>');
+  setTimeout(function(){
+    typing.querySelector(".bub").innerHTML = html(answer(text));
+    window.scrollTo(0, document.body.scrollHeight);
+  }, 600);
+}
+
+$("chips").innerHTML = CHIPS.map(function(c){ return '<button class="chip">' + esc(c) + "</button>"; }).join("");
+$("chips").addEventListener("click", function(e){ if (e.target.className === "chip") ask(e.target.textContent); });
+$("go").addEventListener("click", function(){ ask($("q").value); });
+$("q").addEventListener("keydown", function(e){ if (e.key === "Enter") ask($("q").value); });
+
+add("bot", "Hello! I'm the SmartCare assistant. Ask me about doctors, appointments, lab results or the hospital, or tap a button below.");
+</script>
+</body>
+</html>
