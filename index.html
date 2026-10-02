@@ -1,4 +1,75 @@
-empty { text-align:center; color:var(--muted); padding:48px 20px; line-height:1.6; }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartCare - Lab results</title>
+<style>
+  :root { --navy:#0b4f85; --blue:#1e73be; --sky:#2ea8e8; --green:#2bb37b; --teal:#1a9a85;
+          --bg:#f2f8fb; --card:#fff; --ink:#0f2a3d; --muted:#5a7487; --line:#d8e6ef; --red:#c8453b; --amber:#b7791f; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); padding-bottom:24px;
+         font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  button { font-family:inherit; cursor:pointer; }
+
+  .top { display:flex; align-items:center; gap:10px; padding:12px 18px; background:#fff;
+         border-bottom:1px solid var(--line); }
+  .top svg { width:38px; height:38px; flex:none; }
+  .brand { font-size:22px; font-weight:800; letter-spacing:-.3px; color:var(--navy); line-height:1; }
+  .brand span { color:var(--green); }
+  .tag { font-size:11px; color:var(--muted); margin-top:3px; }
+
+  .hero { padding:24px 18px 28px; color:#fff;
+          background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 55%,var(--teal) 100%); }
+  .hero h1 { margin:0 0 6px; font-size:28px; letter-spacing:-.4px; }
+  .hero p { margin:0; font-size:15px; opacity:.92; }
+
+  .tools { position:sticky; top:0; z-index:5; padding:12px 16px 10px; background:var(--bg);
+           border-bottom:1px solid var(--line); }
+  .stats { display:flex; gap:8px; }
+  .stat { flex:1; background:#fff; border:1px solid var(--line); border-radius:14px; padding:10px 6px; text-align:center; }
+  .stat b { display:block; font-size:22px; color:var(--navy); }
+  .stat span { font-size:12px; color:var(--muted); }
+  .chips { display:flex; gap:8px; overflow-x:auto; padding:12px 0 2px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chip { flex:none; padding:8px 15px; border:1.5px solid var(--line); border-radius:999px;
+          background:#fff; color:var(--navy); font-size:14px; font-weight:600; }
+  .chip.on { background:linear-gradient(135deg,var(--blue),var(--teal)); border-color:transparent; color:#fff; }
+
+  .wrap { padding:6px 16px 20px; }
+  .count { margin:14px 2px 4px; font-size:13px; color:var(--muted); }
+  .doc { background:var(--card); border:1px solid var(--line); border-radius:18px; margin-top:12px;
+         box-shadow:0 2px 10px rgba(11,79,133,.06); overflow:hidden; }
+  .head { all:unset; display:flex; gap:14px; align-items:flex-start; width:100%; padding:14px; cursor:pointer; }
+  .head:focus-visible { outline:3px solid rgba(46,168,232,.4); outline-offset:-3px; }
+  .av { flex:none; width:54px; height:54px; border-radius:16px; display:grid; place-items:center;
+        color:#fff; font-weight:700; font-size:18px; background:linear-gradient(135deg,var(--sky),var(--green)); }
+  .info { flex:1; min-width:0; }
+  .info b { font-size:17px; color:var(--navy); }
+  .spec { display:inline-block; margin:5px 0 8px; padding:3px 10px; border-radius:999px; font-size:13px;
+          font-weight:600; background:rgba(43,179,123,.14); color:#16875a; }
+  .spec.high { background:rgba(200,69,59,.12); color:var(--red); margin:0; }
+  .spec.low { background:rgba(183,121,31,.14); color:var(--amber); margin:0; }
+  .spec.ok { margin:0; }
+  .hosp { display:flex; align-items:center; gap:6px; font-size:15px; font-weight:600; color:var(--ink); }
+  .hosp svg { width:16px; height:16px; flex:none; }
+  .meta { font-size:14px; color:var(--muted); line-height:1.55; }
+  .when { margin-top:4px; font-weight:600; color:var(--ink); font-size:14px; }
+  .badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+  .chev { flex:none; align-self:center; color:var(--muted); font-size:18px; transition:transform .15s; }
+  .doc.open .chev { transform:rotate(180deg); }
+  .more { display:none; padding:0 14px 8px; }
+  .doc.open .more { display:block; }
+  .tr { padding:12px 0; border-top:1px solid var(--line); }
+  .trh { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .trh b { font-size:15px; color:var(--navy); display:block; margin-bottom:5px; }
+  .val { text-align:right; font-size:17px; font-weight:700; }
+  .val small { display:block; font-size:12px; font-weight:500; color:var(--muted); }
+  .bar { position:relative; height:8px; border-radius:99px; background:var(--line); margin:12px 0 6px; }
+  .bar i { position:absolute; top:0; bottom:0; border-radius:99px; background:linear-gradient(90deg,var(--green),var(--teal)); }
+  .bar u { position:absolute; top:-4px; width:5px; height:16px; border-radius:3px; background:var(--navy); }
+  .note { font-size:13px; color:var(--muted); line-height:1.5; margin-top:4px; }
+  .empty { text-align:center; color:var(--muted); padding:48px 20px; line-height:1.6; }
   .foot { text-align:center; font-size:12px; color:var(--muted); padding:8px 20px; line-height:1.5; }
 </style>
 </head>
@@ -20,7 +91,7 @@ empty { text-align:center; color:var(--muted); padding:48px 20px; line-height:1.
 
 <div class="hero">
   <h1>Lab results</h1>
-  <p>Tap a test to see the normal range. Collected 28 Sep 2026.</p>
+  <p>Results from each doctor, newest first. Tap one to see the tests.</p>
 </div>
 
 <div class="tools">
@@ -35,51 +106,85 @@ empty { text-align:center; color:var(--muted); padding:48px 20px; line-height:1.
 </div>
 
 <script>
-// EDIT THIS LIST: one line per test. lo/hi = normal range, min/max = size of the bar.
-var TESTS = [
-  { name:"Hemoglobin",         cat:"Blood",  v:13.8, u:"g/dL",     lo:12,  hi:16,  min:8,   max:20,  note:"Within the healthy range." },
-  { name:"White blood cells",  cat:"Blood",  v:11.9, u:"x10³/µL",  lo:4,   hi:11,  min:2,   max:16,  note:"Slightly above range. Your doctor may ask for a repeat test." },
-  { name:"Glucose (fasting)",  cat:"Sugar",  v:92,   u:"mg/dL",    lo:70,  hi:100, min:50,  max:140, note:"Within the healthy range." },
-  { name:"Cholesterol (total)",cat:"Lipids", v:221,  u:"mg/dL",    lo:0,   hi:200, min:100, max:300, note:"Above the recommended level. Ask your doctor about diet and follow-up." },
-  { name:"Vitamin D",          cat:"Vitamins", v:34, u:"ng/mL",    lo:30,  hi:100, min:0,   max:120, note:"Within the healthy range." },
-  { name:"Creatinine",         cat:"Kidney", v:0.9,  u:"mg/dL",    lo:0.6, hi:1.2, min:0,   max:2,   note:"Within the healthy range." }
-];
-
-function $(id){ return document.getElementById(id); }
+// EDIT THIS LIST: one block per doctor visit. Newest date first or any order (it sorts itself).
+// Each test: v = your value, lo/hi = normal range, min/max = size of the bar.
+var REPORTS = [
+  { doctor:"Dr. Ahmed Hassan", specialty:"Cardiology", hospital:"Azadi Teaching Hospital", date:"2026-09-28",
+    tests:[
+      { name:"Cholesterol (total)", v:221, u:"mg/dL", lo:0,  hi:200, min:100, max:300, note:"Above the recommended level. Ask your doctor about diet and follow-up." },
+      { name:"LDL cholesterol",     v:142, u:"mg/dL", lo:0,  hi:130, min:50,  max:200, note:"Slightly high. Your doctor may suggest changes to your diet." },
+      { name:"HDL cholesterol",     v:52,  u:"mg/dL", lo:40, hi:100, min:20,  max:100, note:"Within the healthy range." },
+      { name:"Triglycerides",       v:140, u:"mg/dL", lo:0,  hi:150, min:50,  max:250, note:"Within the healthy range." }
+    ] },
+  { doctor:"Dr. Shadan Ibrahim", specialty:"Internal Medicine", hospital:"Azadi Teaching Hospital", date:"2026-09-20",
+    tests:[
+      { name:"Hemoglobin",        v:13.8, u:"g/dL",    lo:12, hi:16,  min:8,  max:20,  note:"Within the healthy range." },
+      { name:"White blood cells", v:11.9, u:"x10³/µL", lo:4,  hi:11,  min:2,  max:16,  note:"Slightly above range. Your doctor may ask for a repeat test." },
+      { name:"Glucose (fasting)", v:92,   u:"mg/dL",   lo:70, hi:100, min:50, max:140, note:"Within the healthy range." },
+      { name:"Creatinine",        v:0.9,  u:"mg/dL",   lo:0.6,hi:1.2, min:0,  max:2,   note:"Within the healthy range." }
+    ] },
+  { doctor:"Dr. Roza Hamad", specialty:"General Medicine", hospital:"Duhok Private Hospital", date:"2026-08-14",
+    tests:[
+      { name:"Vitamin D", v:34,  u:"ng/mL",  lo:30,  hi:100, min:0, max:120, note:"Within the healthy range." },
+      { name:"TSH",       v:2.1, u:"mIU/L",  lo:0.4, hi:4,   min:0, max:8,   note:"Within the healthy range." },
+      { name:"Ferritin",  v:18,  u:"ng/mL",  lo:20,  hi:250, min:0, max:300, note:"Slightly low. Ask your doctor if you need iron." }
+    ] }
+];function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
 function status(t){ return t.v < t.lo ? "low" : t.v > t.hi ? "high" : "ok"; }
 var LABEL = { ok:"Normal", high:"High", low:"Low" };
+function initials(n){ var p = n.replace("Dr. ","").split(" "); return (p[0][0] + p[p.length-1][0]).toUpperCase(); }
+function fmtDate(s){
+  try { return new Date(s+"T00:00:00").toLocaleDateString(undefined,{ day:"numeric", month:"short", year:"numeric" }); }
+  catch(e){ return s; }
+}
+function counts(r){
+  var ok = r.tests.filter(function(t){ return status(t)==="ok"; }).length;
+  return { ok:ok, bad:r.tests.length-ok };
+}
+var PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="#1a9a85" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 
-var active = "All", FILTERS = ["All","Normal","Needs review"];
+REPORTS.sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+
+var active = "All", FILTERS = ["All","Needs review","All normal"];
 
 function drawTop(){
-  var ok = TESTS.filter(function(t){ return status(t)==="ok"; }).length;
+  var ok = 0, bad = 0;
+  REPORTS.forEach(function(r){ var c = counts(r); ok += c.ok; bad += c.bad; });
   $("stats").innerHTML =
-    '<div class="stat"><b>'+TESTS.length+'</b><span>Tests</span></div>'+
+    '<div class="stat"><b>'+REPORTS.length+'</b><span>Reports</span></div>'+
     '<div class="stat"><b style="color:#16875a">'+ok+'</b><span>Normal</span></div>'+
-    '<div class="stat"><b style="color:var(--red)">'+(TESTS.length-ok)+'</b><span>Need review</span></div>';
+    '<div class="stat"><b style="color:var(--red)">'+bad+'</b><span>Need review</span></div>';
   $("chips").innerHTML = FILTERS.map(function(f){
     return '<button class="chip'+(f===active?" on":"")+'" data-f="'+f+'">'+f+'</button>';
   }).join("");
 }
 
 function render(){
-  var rows = TESTS.filter(function(t){
-    var s = status(t);
-    return active==="All" || (active==="Normal" && s==="ok") || (active==="Needs review" && s!=="ok");
+  var rows = REPORTS.filter(function(r){
+    var c = counts(r);
+    return active==="All" || (active==="Needs review" && c.bad>0) || (active==="All normal" && c.bad===0);
   });
-  $("count").textContent = rows.length + (rows.length===1 ? " test" : " tests");
-  $("list").innerHTML = rows.length ? rows.map(function(t){
-    var s = status(t);
-    var p = function(x){ return Math.max(0, Math.min(100, (x-t.min)/(t.max-t.min)*100)); };
-    return '<div class="doc"><button class="head" aria-expanded="false">'+
-      '<div class="av '+s+'">'+(s==="ok"?"✓":"!")+'</div>'+
-      '<div class="info"><b>'+esc(t.name)+'</b><br><span class="spec '+s+'">'+LABEL[s]+' · '+esc(t.cat)+'</span></div>'+
-      '<div class="val">'+t.v+'<small>'+esc(t.u)+'</small></div></button>'+'<div class="more"><div class="bar"><i style="left:'+p(t.lo)+'%;width:'+(p(t.hi)-p(t.lo))+'%"></i>'+
-      '<u style="left:calc('+p(t.v)+'% - 2px)"></u></div>'+
-      '<div class="meta">Normal range: '+t.lo+' – '+t.hi+' '+esc(t.u)+'</div>'+
-      '<div class="meta">'+esc(t.note)+'</div></div></div>';
-  }).join("") : '<div class="empty">No tests in this group.</div>';
+  $("count").textContent = rows.length + (rows.length===1 ? " report" : " reports");
+  $("list").innerHTML = rows.length ? rows.map(function(r){
+    var c = counts(r);
+    var badges = '<span class="spec ok">'+c.ok+' normal</span>' +
+      (c.bad ? '<span class="spec high">'+c.bad+' need review</span>' : '');
+    var tests = r.tests.map(function(t){
+      var s = status(t);
+      var p = function(x){ return Math.max(0, Math.min(100, (x-t.min)/(t.max-t.min)*100)); };
+      return '<div class="tr"><div class="trh"><div><b>'+esc(t.name)+'</b><span class="spec '+s+'">'+LABEL[s]+'</span></div>'+
+        '<div class="val">'+t.v+'<small>'+esc(t.u)+'</small></div></div>'+
+        '<div class="bar"><i style="left:'+p(t.lo)+'%;width:'+(p(t.hi)-p(t.lo))+'%"></i><u style="left:calc('+p(t.v)+'% - 2px)"></u></div>'+
+        '<div class="meta">Normal range: '+t.lo+' – '+t.hi+' '+esc(t.u)+'</div>'+
+        '<div class="note">'+esc(t.note)+'</div></div>';
+    }).join("");
+    return '<div class="doc"><button class="head" aria-expanded="false"><div class="av">'+esc(initials(r.doctor))+'</div>'+
+      '<div class="info"><b>'+esc(r.doctor)+'</b><br><span class="spec">'+esc(r.specialty)+'</span>'+
+      '<div class="hosp">'+PIN+'<span>'+esc(r.hospital)+'</span></div>'+
+      '<div class="when">'+esc(fmtDate(r.date))+'</div><div class="badges">'+badges+'</div></div>'+
+      '<div class="chev">▾</div></button><div class="more">'+tests+'</div></div>';
+  }).join("") : '<div class="empty">No reports in this group.</div>';
 }
 
 $("chips").addEventListener("click", function(e){
